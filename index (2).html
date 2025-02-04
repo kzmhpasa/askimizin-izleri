@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aşkımızın İzleri</title>
+  <!-- Konfeti için canvas-confetti kütüphanesi -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+  <style>
+    /* Genel Stil Ayarları */
+    body {
+      font-family: 'Georgia', serif;
+      background: linear-gradient(to bottom right, #faf3e0, #fce4ec);
+      color: #8b0000;
+      margin: 0;
+      padding: 0;
+      line-height: 1.6;
+    }
+    /* Üst Menü Stili */
+    nav {
+      background-color: #b22222;
+      color: white;
+      padding: 10px 0;
+      position: sticky;
+      top: 0;
+      width: 100%;
+      z-index: 100;
+    }
+    nav ul {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    nav ul li {
+      margin: 0 15px;
+    }
+    nav ul li a {
+      color: white;
+      text-decoration: none;
+      font-size: 18px;
+    }
+    nav ul li a:hover {
+      text-decoration: underline;
+    }
+    /* Konteyner ve Bölüm Stilleri */
+    .container {
+      width: 95%;
+      max-width: 1200px;
+      margin: 80px auto 40px auto;
+      padding: 20px;
+      background: rgba(255, 245, 225, 0.9);
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      border-radius: 15px;
+    }
+    h1 {
+      font-size: 42px;
+      color: #b22222;
+      margin-bottom: 10px;
+    }
+    h2 {
+      color: #b22222;
+      margin-bottom: 20px;
+    }
+    .section {
+      background: rgba(252, 228, 196, 0.9);
+      padding: 30px;
+      margin: 30px 0;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .btn {
+      background-color: #b22222;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 10px;
+      transition: background-color 0.3s ease;
+    }
+    .btn:hover {
+      background-color: #8b0000;
+    }
+    /* Geri Sayım Stili */
+    #countdown-section p {
+      font-size: 24px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    /* Sevgi Mesajı Div'i */
+    #love-message {
+      margin-top: 20px;
+      padding: 15px;
+      background: #fff;
+      border-left: 5px solid #b22222;
+      border-radius: 5px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    }
+    #love-message h3 {
+      margin: 0 0 10px;
+      color: #b22222;
+    }
+    #love-message p {
+      margin: 0;
+      font-size: 18px;
+      color: #8b0000;
+    }
+    /* Sürpriz Mesaj Kutusu */
+    .message-box {
+      display: none;
+      position: fixed;
+      top: 20%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgba(255, 255, 255, 0.97);
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+      width: 80%;
+      max-width: 500px;
+      text-align: center;
+      z-index: 1000;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translate(-50%, -40%); }
+      to { opacity: 1; transform: translate(-50%, -50%); }
+    }
+    .message-box h2 {
+      color: #b22222;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    .message-box p {
+      color: #8b0000;
+      font-size: 18px;
+      line-height: 1.8;
+    }
+    .message-box button {
+      background-color: #b22222;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 20px;
+      transition: background-color 0.3s ease;
+    }
+    .message-box button:hover {
+      background-color: #8b0000;
+    }
+    /* Fotoğraf Galerisi Stilleri */
+    .photo-text {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      opacity: 0.95;
+      position: relative;
+    }
+    /* Ters düzen */
+    .photo-text.reverse {
+      flex-direction: row-reverse;
+    }
+    .photo-text img {
+      width: 40%;
+      max-width: 200px;
+      border-radius: 10px;
+      margin: 0 20px;
+    }
+    .photo-text p {
+      flex: 1;
+      font-size: 18px;
+      color: #8b0000;
+      text-align: justify;
+    }
+    /* Blur efekti başlangıçta */
+    .photo-text.blurred {
+      filter: blur(8px);
+      transition: filter 0.5s ease;
+      cursor: pointer;
+    }
+    /* Şiirler Bölümü */
+    .poem {
+      background-color: #fff5e1;
+      margin: 20px 0;
+      padding: 20px;
+      border-left: 5px solid #b22222;
+      border-radius: 5px;
+    }
+    .poem p {
+      font-size: 20px;
+      margin: 10px 0;
+    }
+    .poem .caption {
+      font-style: italic;
+      color: #b22222;
+      text-align: right;
+    }
+  </style>
+  <script>
+    // Geri sayım fonksiyonu (2025-02-14 tarihine göre)
+    function countdown() {
+      const eventDate = new Date("2025-02-14T00:00:00").getTime();
+      setInterval(function () {
+        const now = new Date().getTime();
+        const distance = eventDate - now;
+        if(distance < 0) {
+          document.getElementById("countdown-timer").innerHTML = "Etkinlik başladı!";
+          return;
+        }
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        document.getElementById("countdown-timer").innerHTML =
+          `Kalan Süre: ${days} Gün ${hours} Saat ${minutes} Dakika ${seconds} Saniye`;
+      }, 1000);
+    }
+
+    // Sürpriz Mesaj ve konfeti efekti (buton ile çalışan bölüm)
+    function showMessage() {
+      document.getElementById("messageBox").style.display = "block";
+      confetti({
+        particleCount: 150,
+        spread: 100,
+        origin: { y: 0.5 },
+        colors: ['#ff595e', '#ffca3a', '#8ac926', '#1982c4', '#6a4c93']
+      });
+    }
+    function closeMessage() {
+      document.getElementById("messageBox").style.display = "none";
+    }
+
+    // Fotoğraf ve metin içeren bölümlerin (".photo-text") üzerine tıklanınca blur kaldırıp konfeti tetikleme
+    document.addEventListener("DOMContentLoaded", function() {
+      var blurredDivs = document.querySelectorAll(".photo-text.blurred");
+      blurredDivs.forEach(function(div) {
+        div.addEventListener("click", function(e) {
+          e.currentTarget.classList.remove("blurred");
+          e.currentTarget.style.cursor = "default";
+          const rect = e.currentTarget.getBoundingClientRect();
+          confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { 
+              x: (rect.left + rect.width / 2) / window.innerWidth,
+              y: (rect.top + rect.height / 2) / window.innerHeight
+            },
+            colors: ['#ff595e', '#ffca3a', '#8ac926', '#1982c4', '#6a4c93']
+          });
+        });
+      });
+    });
+
+    // Slayt Gösterimi (varsa)
+    let slideIndex = 0;
+    function showSlides() {
+      let slides = document.getElementsByClassName("slide");
+      for (let i = 0; i < slides.length; i++) {
+        slides[i].style.display = "none";
+      }
+      slideIndex++;
+      if (slideIndex > slides.length) { slideIndex = 1 }
+      if (slides.length > 0) {
+        slides[slideIndex - 1].style.display = "block";
+        setTimeout(showSlides, 3000);
+      }
+    }
+  </script>
+</head>
+<body onload="countdown(); showSlides();">
+  <!-- Üst Menü -->
+  <nav>
+    <ul>
+      <li><a href="#home">Ana Sayfa</a></li>
+      <li><a href="#countdown-section">Özel Gün</a></li>
+      <li><a href="#surpriseMessage">Sürpriz Mesaj</a></li>
+      <li><a href="#gallery">Fotoğraf Galerisi</a></li>
+      <li><a href="#poems">Şiirler</a></li>
+    </ul>
+  </nav>
+
+  <div class="container" id="home">
+    <!-- Başlık Bölümü -->
+    <h1>Aşkımızın İzleri</h1>
+    <h2>Hamza &amp; Gizemimmm</h2>
+
+    <!-- Geri Sayım Bölümü -->
+    <div class="section" id="countdown-section">
+      <h2>Özel Günümüze Kalan Süre</h2>
+      <p id="countdown-timer"></p>
+      <!-- Saniyeden hemen sonra görünecek sevgi mesajı bölümü -->
+      <div id="love-message">
+        <h3>Sevgili Gizemcim</h3>
+<p> 🎁🎀 Sevgili Gizemcim, seninle yaşam gerçek bir masal gibi akıp gidiyor. Her an kalbimde özel bir yer ediniyor ve seninle paylaştığım her dakika benzersiz bir armağan haline geliyor. Aşkın ruhumu ısıtan sıcak bir ışık olarak etrafıma yayılıyor; seninle birlikte tüm zorlukları aşma gücünü hissediyorum. Hayatın getirdiği her renk, senin varlığında anlam buluyor; kalbimin derinliklerinde saklı duygular yeniden filizleniyor. Birlikte geçirdiğimiz her an bana mutluluğun ve huzurun en saf halini sunuyor. Seninle her düşüncem, her hayalim ve her adımım, geleceğe dair umut dolu hayallerin yansıması olarak hayatıma anlam katıyor. Kalbim senin sıcaklığınla yeniden canlanıyor ve yaşamın tüm zorluklarına karşı güç buluyorum. Seni sonsuz sevgiyle kucaklıyor, her anını özenle saklıyorum; bu eşsiz serüven bana gerçek ilham veriyor. Günlerin her birinde senin gülüşünü, sıcak bakışlarını ve kalbindeki derin sevgiyi hissedebilmek, bana yaşamın anlamını yeniden hatırlatıyor; bu büyülü duygu, her anı daha değerli kılıyor, umudu tazeliyor ve geleceğe dair hayallerimi güçlendiriyor ve kalbimde izler bırakıyor. 🎀🎁 </p>
+      </div>
+    </div>
+
+    <!-- Sürpriz Mesaj Bölümü (Butonla tetiklenen konfeti) -->
+    <div class="section" id="surpriseMessage">
+      <h2>Gizemimmm için Sürpriz Mesaj</h2>
+      <button class="btn" onclick="showMessage()">Tıkla ve Oku</button>
+    </div>
+    <!-- Sürpriz Mesajın Açılır Penceresi -->
+    <div id="messageBox" class="message-box">
+      <h2>Sevgilim Gizemimmm 💖</h2>
+      <p>Her geçen gün seni daha çok seviyorum. Her anımız, hayatımın en değerli hatırası. Gözlerinde kaybolmak, seninle bir dünya kurmak…</p>
+      <button onclick="closeMessage()">Kapat</button>
+    </div>
+
+    <!-- Fotoğraf Galerisi -->
+    <div class="section" id="gallery">
+      <h2>Fotoğraf Galerisi</h2>
+      <!-- 1. Fotoğraf (Fotoğraf – Yazı) -->
+      <div class="photo-text blurred">
+        <img src="hamza1.jpg" alt="Hamza ve Gizem">
+        <p>Birlikte geçirdiğimiz en güzel anlardan biri. Her saniyesi değerli, unutulmaz! 💖</p>
+      </div>
+      <!-- 2. Fotoğraf (Yazı – Fotoğraf) -->
+      <div class="photo-text reverse blurred">
+        <img src="hamza2.jpg" alt="Hamza ve Gizem">
+        <p>Gizemimmm, seninle geçirdiğimiz her an hayatıma renk katıyor. 💖</p>
+      </div>
+      <!-- 3. Fotoğraf (Fotoğraf – Yazı) -->
+      <div class="photo-text blurred">
+        <img src="hamza3.jpg" alt="Aşk Dolu Anlar">
+        <p>Seninle yaşadığım her an, bir ömre bedel. 💖</p>
+      </div>
+      <!-- 4. Fotoğraf (Yazı – Fotoğraf) -->
+      <div class="photo-text reverse blurred">
+        <img src="hamza4.jpg" alt="Hamza ve Gizem">
+        <p>Gözlerinde kaybolduğum anlar, hayatımın en güzel anıları. 💖</p>
+      </div>
+      <!-- 5. Fotoğraf (Fotoğraf – Yazı) -->
+      <div class="photo-text blurred">
+        <img src="hamza5.jpg" alt="Mutlu Anılar">
+        <p>Her fotoğraf bir hikaye, her anımızın ölümsüz hatırası. 💖</p>
+      </div>
+      <!-- 6. Fotoğraf (Yazı – Fotoğraf) -->
+      <div class="photo-text reverse blurred">
+        <img src="hamza6.jpg" alt="Gizem ve Hamza">
+        <p>Sonsuza dek seninle olmak, hayatın en güzel armağanı. 💖</p>
+      </div>
+      <!-- 7. Fotoğraf (Fotoğraf – Yazı) -->
+      <div class="photo-text blurred">
+        <img src="hamza7.jpg" alt="Romantik Anlar">
+        <p>Her an seninle daha özel, daha anlamlı. 💖</p>
+      </div>
+      <!-- 8. Fotoğraf (Yazı – Fotoğraf) -->
+      <div class="photo-text reverse blurred">
+        <img src="hamza8.jpg" alt="Aşk Dolu Fotoğraf">
+        <p>Seninle her şey daha parlak, daha renkli. 💖</p>
+      </div>
+      <!-- 9. Fotoğraf (Fotoğraf – Yazı) -->
+      <div class="photo-text blurred">
+        <img src="hamza9.jpg" alt="Hamza ve Gizemimmm">
+        <p>Her anın, bir ömre değecek güzellikte. 💖</p>
+      </div>
+      <!-- 10. Fotoğraf (Yazı – Fotoğraf) -->
+      <div class="photo-text reverse blurred">
+        <img src="hamza10.jpg" alt="Aşkın İzleri">
+        <p>Bu aşk, hayatımın en güzel izlerini bırakıyor. 💖</p>
+      </div>
+      <!-- 11. Fotoğraf (Fotoğraf – Yazı) -->
+      <div class="photo-text blurred">
+        <img src="hamza11.jpg" alt="En Güzel Anlar">
+        <p>Sonsuza kadar seninle, her zaman ve her yerde. 💖</p>
+      </div>
+    </div>
+
+    <!-- Şiirler Bölümü -->
+    <div class="section" id="poems">
+      <h2>Şiirler</h2>
+      <div class="poem">
+        <p>"Kalbimde açan gül, seninle soldu; her nefeste adınla yeniden doğdu."</p>
+        <p class="caption">- Aşkın Şiiri</p>
+      </div>
+      <div class="poem">
+        <p>"Gözlerimde saklı anılar, her biri sana dair; her biri bir şiir, sevdanın izleri."</p>
+        <p class="caption">- Ruhun Melodisi</p>
+      </div>
+      <div class="poem">
+        <p>"Sonsuzlukta kaybolan bir bakış, seninle anlam kazandı; aşkımız bir destan, yüreğimizde yazıldı."</p>
+        <p class="caption">- Sonsuz Aşk</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
